@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Building, 
   User, 
   Calendar, 
-  Chart, 
+  ChartBarIcon,
   Settings,
   Database
 } from 'lucide-react';
@@ -23,7 +22,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     { 
       name: 'Dashboard', 
       path: '/admin', 
-      icon: Chart 
+      icon: ChartBarIcon 
     },
     { 
       name: 'Properties', 
@@ -143,7 +142,7 @@ const AdminDashboard = () => {
     { title: 'Total Properties', value: '24', change: '+2 this month', icon: Building, color: 'blue' },
     { title: 'Active Bookings', value: '18', change: '+5 this week', icon: Calendar, color: 'green' },
     { title: 'Total Users', value: '342', change: '+12 this month', icon: User, color: 'yellow' },
-    { title: 'Revenue', value: '$12,450', change: '+8% this month', icon: Chart, color: 'red' },
+    { title: 'Revenue', value: '$12,450', change: '+8% this month', icon: ChartBarIcon, color: 'red' },
   ];
 
   // Sample data for recent bookings
