@@ -1,7 +1,16 @@
-
 import React, { useState } from 'react';
 import { Building, Filter, Search } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useBookings } from "@/contexts/BookingsContext";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -37,78 +46,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
 const AdminBookings = () => {
   const { toast } = useToast();
+  const { bookings, updateBookingStatus, loading } = useBookings();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  // Sample bookings data
-  const bookings = [
-    {
-      id: "BK001",
-      guestName: "John Smith",
-      guestEmail: "john.smith@example.com",
-      propertyName: "Luxury Villa with Ocean View",
-      checkIn: "2023-05-15",
-      checkOut: "2023-05-22",
-      guests: 4,
-      amount: 2500,
-      status: "confirmed"
-    },
-    {
-      id: "BK002",
-      guestName: "Sarah Johnson",
-      guestEmail: "sarah.j@example.com",
-      propertyName: "Traditional Moroccan Riad",
-      checkIn: "2023-06-10",
-      checkOut: "2023-06-17",
-      guests: 6,
-      amount: 1800,
-      status: "pending"
-    },
-    {
-      id: "BK003",
-      guestName: "Michael Brown",
-      guestEmail: "mbrown@example.com",
-      propertyName: "Modern Beachside Apartment",
-      checkIn: "2023-06-18",
-      checkOut: "2023-06-24",
-      guests: 2,
-      amount: 850,
-      status: "confirmed"
-    },
-    {
-      id: "BK004",
-      guestName: "Laura Wilson",
-      guestEmail: "lwilson@example.com",
-      propertyName: "Family Beach House",
-      checkIn: "2023-07-01",
-      checkOut: "2023-07-10",
-      guests: 8,
-      amount: 1950,
-      status: "completed"
-    },
-    {
-      id: "BK005",
-      guestName: "David Miller",
-      guestEmail: "dmiller@example.com",
-      propertyName: "Cozy Studio Near the Medina",
-      checkIn: "2023-06-05",
-      checkOut: "2023-06-09",
-      guests: 1,
-      amount: 600,
-      status: "cancelled"
-    },
-    {
-      id: "BK006",
-      guestName: "Elena Rodriguez",
-      guestEmail: "erodriguez@example.com",
-      propertyName: "Hillside Villa with Private Pool",
-      checkIn: "2023-08-15",
-      checkOut: "2023-08-25",
-      guests: 10,
-      amount: 3200,
-      status: "pending"
-    }
-  ];
 
   // Filter bookings by search term and status
   const filteredBookings = bookings.filter(booking => {
@@ -140,12 +80,19 @@ const AdminBookings = () => {
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
-    // In a real application, this would call an API to update the booking status
-    console.log(`Changing booking ${id} status to ${newStatus}`);
+    updateBookingStatus(id, newStatus as any);
     
     toast({
       title: "Booking Status Updated",
       description: `Booking #${id} has been marked as ${newStatus}.`,
+    });
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -186,65 +133,53 @@ const AdminBookings = () => {
       {/* Bookings Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Booking Details
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Guest
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Property
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dates
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Booking Details</TableHead>
+                <TableHead>Guest</TableHead>
+                <TableHead>Property</TableHead>
+                <TableHead>Dates</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="px-6 py-4">
+                <TableRow key={booking.id}>
+                  <TableCell>
                     <div className="text-sm font-medium text-gray-900">
                       Booking #{booking.id}
                     </div>
                     <div className="text-xs text-gray-500">
                       {booking.guests} {booking.guests === 1 ? 'guest' : 'guests'} • ${booking.amount}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm font-medium text-gray-900">
                       {booking.guestName}
                     </div>
                     <div className="text-xs text-gray-500">
                       {booking.guestEmail}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm text-gray-900 max-w-[250px] truncate">
                       {booking.propertyName}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm text-gray-900">
-                      <div>{booking.checkIn}</div>
-                      <div>{booking.checkOut}</div>
+                      <div>{formatDate(booking.checkIn)}</div>
+                      <div>{formatDate(booking.checkOut)}</div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell>
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getStatusBadgeClass(booking.status)}`}>
                       {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
+                  </TableCell>
+                  <TableCell>
                     <select 
                       className="text-sm border border-gray-300 rounded-md px-2 py-1"
                       value={booking.status}
@@ -255,11 +190,11 @@ const AdminBookings = () => {
                       <option value="completed">Complete</option>
                       <option value="cancelled">Cancel</option>
                     </select>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
         
         {/* Empty state */}
@@ -268,11 +203,12 @@ const AdminBookings = () => {
             <Building className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No bookings found</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm 
-                ? `No bookings match "${searchTerm}"` 
-                : filterStatus !== 'all' 
-                  ? `No ${filterStatus} bookings found`
-                  : 'No bookings have been made yet.'}
+              {loading ? "Loading bookings..." : 
+                searchTerm 
+                  ? `No bookings match "${searchTerm}"` 
+                  : filterStatus !== 'all' 
+                    ? `No ${filterStatus} bookings found`
+                    : 'No bookings have been made yet.'}
             </p>
           </div>
         )}

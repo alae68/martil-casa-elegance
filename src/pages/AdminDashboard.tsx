@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useBookings } from "@/contexts/BookingsContext";
 import { 
   Building, 
   User, 
@@ -137,44 +138,48 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 };
 
 const AdminDashboard = () => {
-  // Sample data for dashboard stats
+  const { bookings } = useBookings();
+  
+  // Calculate real stats from bookings
+  const activeBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
+  const totalRevenue = bookings.reduce((sum, booking) => sum + booking.amount, 0);
+  
+  // Sample data for dashboard stats (some real, some mock)
   const stats = [
     { title: 'Total Properties', value: '24', change: '+2 this month', icon: Building, color: 'blue' },
-    { title: 'Active Bookings', value: '18', change: '+5 this week', icon: Calendar, color: 'green' },
+    { title: 'Active Bookings', value: String(activeBookings), change: `${activeBookings > 0 ? '+' : ''}${activeBookings} total`, icon: Calendar, color: 'green' },
     { title: 'Total Users', value: '342', change: '+12 this month', icon: User, color: 'yellow' },
-    { title: 'Revenue', value: '$12,450', change: '+8% this month', icon: ChartBarIcon, color: 'red' },
+    { title: 'Revenue', value: `$${totalRevenue.toFixed(2)}`, change: totalRevenue > 0 ? '+New bookings' : 'No revenue yet', icon: ChartBarIcon, color: 'red' },
   ];
 
-  // Sample data for recent bookings
-  const recentBookings = [
-    { 
-      id: 'BK001', 
-      property: 'Luxury Villa with Ocean View', 
-      guest: 'John Smith', 
-      checkIn: '2023-06-15', 
-      checkOut: '2023-06-22',
-      status: 'Confirmed',
-      amount: '$2,500'
-    },
-    { 
-      id: 'BK002', 
-      property: 'Traditional Moroccan Riad', 
-      guest: 'Sarah Johnson', 
-      checkIn: '2023-06-18', 
-      checkOut: '2023-06-25',
-      status: 'Pending',
-      amount: '$1,800'
-    },
-    { 
-      id: 'BK003', 
-      property: 'Modern Beachside Apartment', 
-      guest: 'Michael Brown', 
-      checkIn: '2023-06-20', 
-      checkOut: '2023-06-24',
-      status: 'Confirmed',
-      amount: '$850'
-    },
-  ];
+  // Get real recent bookings (last 3)
+  const recentBookings = bookings
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3)
+    .map(booking => ({
+      id: booking.id, 
+      property: booking.propertyName, 
+      guest: booking.guestName, 
+      checkIn: booking.checkIn, 
+      checkOut: booking.checkOut,
+      status: booking.status.charAt(0).toUpperCase() + booking.status.slice(1),
+      amount: `$${booking.amount}`
+    }));
+
+  // If we don't have recent bookings, use sample data
+  if (recentBookings.length === 0) {
+    recentBookings.push(
+      { 
+        id: 'No bookings', 
+        property: 'No properties booked yet', 
+        guest: 'N/A', 
+        checkIn: '-', 
+        checkOut: '-',
+        status: 'N/A',
+        amount: '$0'
+      }
+    );
+  }
 
   // Sample data for popular properties
   const popularProperties = [
@@ -209,9 +214,20 @@ const AdminDashboard = () => {
         return 'bg-yellow-100 text-yellow-800';
       case 'Cancelled':
         return 'bg-red-100 text-red-800';
+      case 'Completed':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-blue-100 text-blue-800';
     }
+  };
+  
+  const formatDate = (dateStr: string) => {
+    if (dateStr === '-') return '-';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -295,8 +311,8 @@ const AdminDashboard = () => {
                       <div className="text-xs text-gray-400">{booking.guest}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>{booking.checkIn}</div>
-                      <div>{booking.checkOut}</div>
+                      <div>{formatDate(booking.checkIn)}</div>
+                      <div>{formatDate(booking.checkOut)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getStatusColor(booking.status)}`}>

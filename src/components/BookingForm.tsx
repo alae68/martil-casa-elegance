@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { useBookings } from "@/contexts/BookingsContext";
+import { useNavigate } from 'react-router-dom';
 
 interface BookingFormProps {
   propertyId: string;
@@ -11,6 +13,8 @@ interface BookingFormProps {
 
 const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, price, priceUnit }) => {
   const { toast } = useToast();
+  const { addBooking } = useBookings();
+  const navigate = useNavigate();
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
@@ -18,6 +22,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [comments, setComments] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Calculate number of nights and total price based on check-in and check-out dates
   const calculateNights = () => {
@@ -33,38 +38,90 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
 
   const nights = calculateNights();
   const totalPrice = nights * price;
+  const cleaningFee = 50;
+  const serviceFee = 30;
+  const finalTotal = totalPrice + cleaningFee + serviceFee;
+
+  const validateForm = () => {
+    if (!checkIn) {
+      toast({ title: "Error", description: "Please select a check-in date", variant: "destructive" });
+      return false;
+    }
+    if (!checkOut) {
+      toast({ title: "Error", description: "Please select a check-out date", variant: "destructive" });
+      return false;
+    }
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      toast({ title: "Error", description: "Check-out date must be after check-in date", variant: "destructive" });
+      return false;
+    }
+    if (!name.trim()) {
+      toast({ title: "Error", description: "Please enter your name", variant: "destructive" });
+      return false;
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({ title: "Error", description: "Please enter a valid email address", variant: "destructive" });
+      return false;
+    }
+    if (!phone.trim()) {
+      toast({ title: "Error", description: "Please enter your phone number", variant: "destructive" });
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would send this data to your backend
-    console.log({
-      propertyId,
-      propertyTitle,
-      checkIn,
-      checkOut,
-      guests,
-      name,
-      email,
-      phone,
-      comments,
-      nights,
-      totalPrice
-    });
+    
+    if (!validateForm()) {
+      return;
+    }
 
-    // Show success toast notification
-    toast({
-      title: "Booking Request Submitted",
-      description: "We'll contact you shortly to confirm your reservation.",
-    });
+    setIsSubmitting(true);
 
-    // Reset form
-    setCheckIn('');
-    setCheckOut('');
-    setGuests(1);
-    setName('');
-    setEmail('');
-    setPhone('');
-    setComments('');
+    // Add the booking to our context
+    try {
+      addBooking({
+        propertyId,
+        propertyName: propertyTitle,
+        guestName: name,
+        guestEmail: email,
+        checkIn,
+        checkOut,
+        guests,
+        phone,
+        comments,
+        amount: finalTotal
+      });
+
+      // Show success toast notification
+      toast({
+        title: "Booking Request Submitted",
+        description: "We'll contact you shortly to confirm your reservation.",
+      });
+
+      // Reset form
+      setCheckIn('');
+      setCheckOut('');
+      setGuests(1);
+      setName('');
+      setEmail('');
+      setPhone('');
+      setComments('');
+
+      // Redirect to a thank you page or back to homepage after a short delay
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Booking Error",
+        description: "There was an error processing your booking. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,6 +140,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-moroccan-blue"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
               required
             />
           </div>
@@ -96,7 +154,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
               className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-moroccan-blue"
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              min={checkIn}
+              min={checkIn || new Date().toISOString().split('T')[0]}
               required
             />
           </div>
@@ -185,24 +243,25 @@ const BookingForm: React.FC<BookingFormProps> = ({ propertyId, propertyTitle, pr
           </div>
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Cleaning fee</span>
-            <span>$50</span>
+            <span>${cleaningFee}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Service fee</span>
-            <span>$30</span>
+            <span>${serviceFee}</span>
           </div>
           <div className="border-t border-gray-300 my-2"></div>
           <div className="flex justify-between font-medium">
             <span>Total</span>
-            <span>${totalPrice + 50 + 30}</span>
+            <span>${finalTotal}</span>
           </div>
         </div>
 
         <button 
           type="submit"
-          className="w-full bg-moroccan-blue hover:bg-moroccan-blue/90 text-white py-3 rounded font-medium transition duration-200"
+          disabled={isSubmitting}
+          className="w-full bg-moroccan-blue hover:bg-moroccan-blue/90 text-white py-3 rounded font-medium transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Request to Book
+          {isSubmitting ? 'Processing...' : 'Request to Book'}
         </button>
       </form>
     </div>
