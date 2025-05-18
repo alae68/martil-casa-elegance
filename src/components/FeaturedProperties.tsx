@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropertyCard from './PropertyCard';
 import { Property } from '@/data/properties';
 
@@ -25,9 +26,9 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ properties }) =
         </div>
         
         <div className="text-center mt-12">
-          <button className="btn-outline">
+          <Link to="/properties" className="btn-outline">
             View All Properties
-          </button>
+          </Link>
         </div>
       </div>
     </section>

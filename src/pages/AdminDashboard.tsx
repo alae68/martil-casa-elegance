@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useBookings } from "@/contexts/BookingsContext";
+import { useProperties } from "@/contexts/PropertiesContext";
 import { 
   Building, 
   User, 
@@ -139,17 +140,45 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
 const AdminDashboard = () => {
   const { bookings } = useBookings();
+  const { properties } = useProperties();
   
-  // Calculate real stats from bookings
+  // Calculate real stats from bookings and properties
+  const totalProperties = properties.length;
   const activeBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending').length;
   const totalRevenue = bookings.reduce((sum, booking) => sum + booking.amount, 0);
   
-  // Sample data for dashboard stats (some real, some mock)
+  // Sample data for users (not implemented in the current system)
+  const totalUsers = 342; // This would be replaced with real data when user management is implemented
+  
   const stats = [
-    { title: 'Total Properties', value: '24', change: '+2 this month', icon: Building, color: 'blue' },
-    { title: 'Active Bookings', value: String(activeBookings), change: `${activeBookings > 0 ? '+' : ''}${activeBookings} total`, icon: Calendar, color: 'green' },
-    { title: 'Total Users', value: '342', change: '+12 this month', icon: User, color: 'yellow' },
-    { title: 'Revenue', value: `$${totalRevenue.toFixed(2)}`, change: totalRevenue > 0 ? '+New bookings' : 'No revenue yet', icon: ChartBarIcon, color: 'red' },
+    { 
+      title: 'Total Properties', 
+      value: String(totalProperties), 
+      change: `${totalProperties > 0 ? '+' : ''}${totalProperties} total`, 
+      icon: Building, 
+      color: 'blue' 
+    },
+    { 
+      title: 'Active Bookings', 
+      value: String(activeBookings), 
+      change: `${activeBookings > 0 ? '+' : ''}${activeBookings} total`, 
+      icon: Calendar, 
+      color: 'green' 
+    },
+    { 
+      title: 'Total Users', 
+      value: String(totalUsers), 
+      change: '+12 this month', 
+      icon: User, 
+      color: 'yellow' 
+    },
+    { 
+      title: 'Revenue', 
+      value: `$${totalRevenue.toFixed(2)}`, 
+      change: totalRevenue > 0 ? `+$${totalRevenue.toFixed(2)} total` : 'No revenue yet', 
+      icon: ChartBarIcon, 
+      color: 'red' 
+    },
   ];
 
   // Get real recent bookings (last 3)
@@ -181,30 +210,35 @@ const AdminDashboard = () => {
     );
   }
 
-  // Sample data for popular properties
-  const popularProperties = [
-    { 
-      name: 'Luxury Villa with Ocean View', 
-      location: 'Beachfront, Martil', 
-      bookings: 18, 
-      views: 245,
-      rating: 4.9
-    },
-    { 
-      name: 'Traditional Moroccan Riad', 
-      location: 'Old Town, Martil', 
-      bookings: 15, 
-      views: 210,
-      rating: 4.8
-    },
-    { 
-      name: 'Modern Beachside Apartment', 
-      location: 'Central Beach Area, Martil', 
-      bookings: 12, 
-      views: 185,
-      rating: 4.7
-    },
-  ];
+  // Calculate popular properties based on bookings
+  const getPropertyBookingsCount = (propertyId: string) => {
+    return bookings.filter(booking => booking.propertyId === propertyId).length;
+  };
+  
+  // Sort properties by number of bookings
+  const popularProperties = [...properties]
+    .map(property => ({
+      name: property.title, 
+      location: property.location, 
+      bookings: getPropertyBookingsCount(property.id), 
+      views: Math.floor(property.rating * 50), // Simulating views based on rating
+      rating: property.rating
+    }))
+    .sort((a, b) => b.bookings - a.bookings || b.rating - a.rating) // Sort by bookings, then by rating
+    .slice(0, 3); // Take top 3
+
+  // If there are no properties, use placeholder data
+  if (popularProperties.length === 0) {
+    popularProperties.push(
+      { 
+        name: 'No properties available', 
+        location: 'N/A', 
+        bookings: 0, 
+        views: 0,
+        rating: 0
+      }
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
