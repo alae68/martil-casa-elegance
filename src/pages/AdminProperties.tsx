@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Building } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useProperties } from '@/contexts/PropertiesContext';
 import AdminLayout from '@/components/AdminLayout';
