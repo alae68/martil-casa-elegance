@@ -1,11 +1,47 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check login status on component mount and when localStorage changes
+    const checkLoginStatus = () => {
+      const loginStatus = localStorage.getItem('isLoggedIn') === 'true';
+      const role = localStorage.getItem('userRole');
+      
+      setIsLoggedIn(loginStatus);
+      setUserRole(role);
+    };
+    
+    checkLoginStatus();
+    
+    // Listen for storage events (in case user logs in/out in another tab)
+    window.addEventListener('storage', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userRole');
+    setIsLoggedIn(false);
+    setUserRole(null);
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate('/');
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -33,10 +69,35 @@ const Header = () => {
             <Link to="/contact" className="text-gray-700 hover:text-moroccan-blue transition duration-200">
               Contact
             </Link>
-            <Link to="/admin" className="text-gray-700 hover:text-moroccan-blue transition duration-200">
-              Admin
-            </Link>
+            {userRole === 'admin' && (
+              <Link to="/admin" className="text-gray-700 hover:text-moroccan-blue transition duration-200">
+                Admin
+              </Link>
+            )}
           </nav>
+
+          {/* Auth Button (Desktop) */}
+          <div className="hidden md:block">
+            {isLoggedIn ? (
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="flex items-center space-x-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            ) : (
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/login')}
+                className="flex items-center space-x-2"
+              >
+                <LogIn className="h-4 w-4" />
+                <span>Login</span>
+              </Button>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
@@ -76,13 +137,38 @@ const Header = () => {
               >
                 Contact
               </Link>
-              <Link 
-                to="/admin" 
-                className="text-gray-700 hover:text-moroccan-blue transition duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Admin
-              </Link>
+              {userRole === 'admin' && (
+                <Link 
+                  to="/admin" 
+                  className="text-gray-700 hover:text-moroccan-blue transition duration-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Admin
+                </Link>
+              )}
+              
+              {/* Auth Link (Mobile) */}
+              {isLoggedIn ? (
+                <button 
+                  className="text-left text-gray-700 hover:text-moroccan-blue transition duration-200 flex items-center"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </button>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="text-gray-700 hover:text-moroccan-blue transition duration-200 flex items-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Link>
+              )}
             </div>
           </nav>
         )}

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -12,18 +13,44 @@ const SearchBar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real application, you would use these values to filter properties
-    // For now, we'll just navigate to the home page
-    navigate('/', { 
-      state: { 
-        searchParams: {
-          location,
-          checkIn,
-          checkOut,
-          guests
-        }
+    // Validate inputs
+    if (!location) {
+      toast({
+        title: "Location required",
+        description: "Please enter a location to search.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (checkIn && checkOut) {
+      const checkInDate = new Date(checkIn);
+      const checkOutDate = new Date(checkOut);
+      
+      if (checkInDate >= checkOutDate) {
+        toast({
+          title: "Invalid dates",
+          description: "Check-out date must be after check-in date.",
+          variant: "destructive",
+        });
+        return;
       }
+    }
+    
+    // Navigate with search params
+    const searchParams = new URLSearchParams();
+    if (location) searchParams.set('location', location);
+    if (checkIn) searchParams.set('checkIn', checkIn);
+    if (checkOut) searchParams.set('checkOut', checkOut);
+    searchParams.set('guests', guests.toString());
+    
+    toast({
+      title: "Search started",
+      description: `Searching for properties in ${location}`,
     });
+    
+    // Navigate to properties page with search params
+    navigate(`/properties?${searchParams.toString()}`);
   };
   
   return (
@@ -46,6 +73,7 @@ const SearchBar = () => {
             className="w-full text-gray-900 focus:outline-none"
             value={checkIn}
             onChange={(e) => setCheckIn(e.target.value)}
+            min={new Date().toISOString().split('T')[0]} // Today's date as minimum
           />
         </div>
         
@@ -56,7 +84,7 @@ const SearchBar = () => {
             className="w-full text-gray-900 focus:outline-none"
             value={checkOut}
             onChange={(e) => setCheckOut(e.target.value)}
-            min={checkIn}
+            min={checkIn || new Date().toISOString().split('T')[0]}
           />
         </div>
         
