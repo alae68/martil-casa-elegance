@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building, Settings, Cog } from 'lucide-react';
+import { Building, Settings, Cog, Database } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -79,16 +79,24 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <nav className="space-y-1">
             <Link
               to="/admin/settings"
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50"
+              className={`flex items-center px-4 py-3 ${
+                currentPath === '/admin/settings'
+                  ? 'bg-moroccan-blue/10 text-moroccan-blue border-r-4 border-moroccan-blue'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
             >
               <Settings size={18} className="mr-3" />
               <span>General Settings</span>
             </Link>
             <Link
               to="/admin/system"
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50"
+              className={`flex items-center px-4 py-3 ${
+                currentPath === '/admin/system'
+                  ? 'bg-moroccan-blue/10 text-moroccan-blue border-r-4 border-moroccan-blue'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
             >
-              <Cog size={18} className="mr-3" />
+              <Database size={18} className="mr-3" />
               <span>System</span>
             </Link>
           </nav>
