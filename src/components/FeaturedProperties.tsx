@@ -19,11 +19,17 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ properties }) =
           Discover our handpicked selection of the most stunning properties in Martil, each offering a unique experience of luxury and comfort.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProperties.map(property => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
+        {featuredProperties.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProperties.map(property => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No featured properties available at the moment.</p>
+          </div>
+        )}
         
         <div className="text-center mt-12">
           <Link to="/properties" className="btn-outline">

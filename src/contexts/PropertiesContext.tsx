@@ -50,6 +50,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const property: Property = {
       ...newProperty,
       id: `PROP${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+      featured: true, // Automatically set featured to true for new properties
     };
     
     setProperties(prevProperties => [...prevProperties, property]);

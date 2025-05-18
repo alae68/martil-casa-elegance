@@ -1,108 +1,122 @@
 
-import React, { useState } from 'react';
-import { User, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Search, Filter, Edit, Trash2, Check, Plus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import AdminLayout from '@/components/AdminLayout';
+import { Button } from '@/components/ui/button';
+import UserEditModal from '@/components/UserEditModal';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-interface AdminLayoutProps {
-  children: React.ReactNode;
-  title: string;
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: 'admin' | 'staff' | 'customer';
+  status: 'active' | 'inactive';
+  registeredDate: string;
+  lastLogin: string;
+  password?: string;
 }
-
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
-  // We're using the same layout structure from AdminDashboard.tsx
-  return (
-    <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-md hidden md:block">
-        {/* Sidebar content */}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white shadow-sm p-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-xl font-medium text-gray-800">{title}</h1>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-auto p-6 bg-gray-50">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-};
 
 const AdminUsers = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
-  // Sample users data
-  const users = [
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john.smith@example.com",
-      phone: "+1 123-456-7890",
-      role: "customer",
-      status: "active",
-      registeredDate: "2023-01-15",
-      lastLogin: "2023-05-28"
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      email: "sarah.j@example.com",
-      phone: "+1 234-567-8901",
-      role: "customer",
-      status: "active",
-      registeredDate: "2023-02-05",
-      lastLogin: "2023-05-27"
-    },
-    {
-      id: "3",
-      name: "Michael Brown",
-      email: "mbrown@example.com",
-      phone: "+1 345-678-9012",
-      role: "customer",
-      status: "inactive",
-      registeredDate: "2023-02-18",
-      lastLogin: "2023-04-10"
-    },
-    {
-      id: "4",
-      name: "Amina Benali",
-      email: "amina@martilhaven.com",
-      phone: "+212 5XX XX XX XX",
-      role: "admin",
-      status: "active",
-      registeredDate: "2023-01-01",
-      lastLogin: "2023-05-30"
-    },
-    {
-      id: "5",
-      name: "Youssef Alami",
-      email: "youssef@martilhaven.com",
-      phone: "+212 6XX XX XX XX",
-      role: "staff",
-      status: "active",
-      registeredDate: "2023-01-05",
-      lastLogin: "2023-05-29"
-    },
-    {
-      id: "6",
-      name: "Laura Wilson",
-      email: "lwilson@example.com",
-      phone: "+1 456-789-0123",
-      role: "customer",
-      status: "active",
-      registeredDate: "2023-03-10",
-      lastLogin: "2023-05-25"
+  // Load users from localStorage on initial render
+  useEffect(() => {
+    const savedUsers = localStorage.getItem('martilhaven_users');
+    if (savedUsers) {
+      setUsers(JSON.parse(savedUsers));
+    } else {
+      // Sample users data if none exist
+      const defaultUsers = [
+        {
+          id: "1",
+          name: "John Smith",
+          email: "john.smith@example.com",
+          phone: "+1 123-456-7890",
+          role: "customer",
+          status: "active",
+          registeredDate: "2023-01-15",
+          lastLogin: "2023-05-28"
+        },
+        {
+          id: "2",
+          name: "Sarah Johnson",
+          email: "sarah.j@example.com",
+          phone: "+1 234-567-8901",
+          role: "customer",
+          status: "active",
+          registeredDate: "2023-02-05",
+          lastLogin: "2023-05-27"
+        },
+        {
+          id: "3",
+          name: "Michael Brown",
+          email: "mbrown@example.com",
+          phone: "+1 345-678-9012",
+          role: "customer",
+          status: "inactive",
+          registeredDate: "2023-02-18",
+          lastLogin: "2023-04-10"
+        },
+        {
+          id: "4",
+          name: "Amina Benali",
+          email: "amina@martilhaven.com",
+          phone: "+212 5XX XX XX XX",
+          role: "admin",
+          status: "active",
+          registeredDate: "2023-01-01",
+          lastLogin: "2023-05-30"
+        },
+        {
+          id: "5",
+          name: "Youssef Alami",
+          email: "youssef@martilhaven.com",
+          phone: "+212 6XX XX XX XX",
+          role: "staff",
+          status: "active",
+          registeredDate: "2023-01-05",
+          lastLogin: "2023-05-29"
+        },
+        {
+          id: "6",
+          name: "Laura Wilson",
+          email: "lwilson@example.com",
+          phone: "+1 456-789-0123",
+          role: "customer",
+          status: "active",
+          registeredDate: "2023-03-10",
+          lastLogin: "2023-05-25"
+        }
+      ];
+      setUsers(defaultUsers as UserData[]);
+      localStorage.setItem('martilhaven_users', JSON.stringify(defaultUsers));
     }
-  ];
+  }, []);
+
+  // Save users to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('martilhaven_users', JSON.stringify(users));
+  }, [users]);
 
   // Filter users by search term and role
   const filteredUsers = users.filter(user => {
@@ -133,8 +147,11 @@ const AdminUsers = () => {
   };
 
   const handleUpdateUserStatus = (id: string, newStatus: string) => {
-    // In a real application, this would call an API to update the user status
-    console.log(`Updating user ${id} status to ${newStatus}`);
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === id ? { ...user, status: newStatus as 'active' | 'inactive' } : user
+      )
+    );
     
     toast({
       title: "User Status Updated",
@@ -143,13 +160,104 @@ const AdminUsers = () => {
   };
 
   const handleUpdateUserRole = (id: string, newRole: string) => {
-    // In a real application, this would call an API to update the user role
-    console.log(`Updating user ${id} role to ${newRole}`);
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === id ? { ...user, role: newRole as 'admin' | 'staff' | 'customer' } : user
+      )
+    );
     
     toast({
       title: "User Role Updated",
       description: `User role has been updated to ${newRole}.`,
     });
+  };
+
+  const handleEditUser = (user: UserData) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteUser = (user: UserData) => {
+    setSelectedUser(user);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (selectedUser) {
+      setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser.id));
+      setIsConfirmDialogOpen(false);
+      setSelectedUser(null);
+      
+      toast({
+        title: "User Deleted",
+        description: "The user has been successfully deleted.",
+      });
+    }
+  };
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setIsAddModalOpen(true);
+  };
+
+  const handleChangePassword = (user: UserData) => {
+    setSelectedUser(user);
+    setNewPassword('');
+    setIsPasswordDialogOpen(true);
+  };
+
+  const confirmChangePassword = () => {
+    if (selectedUser && newPassword) {
+      // In a real application, you would hash the password before storing it
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === selectedUser.id ? { ...user, password: newPassword } : user
+        )
+      );
+      
+      setIsPasswordDialogOpen(false);
+      setSelectedUser(null);
+      setNewPassword('');
+      
+      toast({
+        title: "Password Changed",
+        description: "The user's password has been successfully changed.",
+      });
+    }
+  };
+
+  const handleSaveUser = (userData: UserData) => {
+    if (selectedUser) {
+      // Edit existing user
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === selectedUser.id ? { ...userData, id: user.id } : user
+        )
+      );
+      
+      toast({
+        title: "User Updated",
+        description: "The user information has been successfully updated.",
+      });
+    } else {
+      // Add new user
+      const newUser: UserData = {
+        ...userData,
+        id: `USER${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+        registeredDate: new Date().toISOString().split('T')[0],
+        lastLogin: '-',
+      };
+      
+      setUsers(prevUsers => [...prevUsers, newUser]);
+      
+      toast({
+        title: "User Added",
+        description: "New user has been successfully added.",
+      });
+    }
+    
+    setIsEditModalOpen(false);
+    setIsAddModalOpen(false);
   };
 
   return (
@@ -169,52 +277,50 @@ const AdminUsers = () => {
           />
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Filter className="h-5 w-5 text-gray-500" />
-          <span className="text-sm text-gray-500">Role:</span>
-          <select
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-moroccan-blue focus:border-moroccan-blue"
-            value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Filter className="h-5 w-5 text-gray-500" />
+            <span className="text-sm text-gray-500">Role:</span>
+            <select
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-moroccan-blue focus:border-moroccan-blue"
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+              <option value="customer">Customer</option>
+            </select>
+          </div>
+          
+          <Button 
+            onClick={handleAddUser}
+            className="bg-moroccan-blue text-white hover:bg-moroccan-blue/90"
           >
-            <option value="all">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-            <option value="customer">Customer</option>
-          </select>
+            <Plus className="h-5 w-5 mr-2" />
+            Add User
+          </Button>
         </div>
       </div>
       
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Activity
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Activity</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                <TableRow key={user.id}>
+                  <TableCell>
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                         <User className="h-5 w-5 text-gray-500" />
@@ -224,50 +330,54 @@ const AdminUsers = () => {
                         <div className="text-sm text-gray-500">ID: {user.id}</div>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm text-gray-900">{user.email}</div>
                     <div className="text-sm text-gray-500">{user.phone}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  </TableCell>
+                  <TableCell>
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getUserRoleBadgeClass(user.role)}`}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  </TableCell>
+                  <TableCell>
                     <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getUserStatusBadgeClass(user.status)}`}>
                       {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                     </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm text-gray-900">Registered: {user.registeredDate}</div>
                     <div className="text-sm text-gray-500">Last login: {user.lastLogin}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex flex-col space-y-2">
-                      <select
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1"
-                        value={user.role}
-                        onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-3">
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="text-blue-600 hover:text-blue-800"
+                        title="Edit User"
                       >
-                        <option value="customer">Customer</option>
-                        <option value="staff">Staff</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                      <select
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1"
-                        value={user.status}
-                        onChange={(e) => handleUpdateUserStatus(user.id, e.target.value)}
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleChangePassword(user)}
+                        className="text-amber-600 hover:text-amber-800"
+                        title="Change Password"
                       >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
+                        <User size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        className="text-red-600 hover:text-red-800"
+                        title="Delete User"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
         
         {/* Empty state */}
@@ -282,9 +392,90 @@ const AdminUsers = () => {
                   ? `No users with role "${filterRole}" found`
                   : 'No users have been added yet.'}
             </p>
+            {!searchTerm && !filterRole && (
+              <div className="mt-6">
+                <Button
+                  onClick={handleAddUser}
+                  className="bg-moroccan-blue hover:bg-moroccan-blue/90"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add User
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog for Delete */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to delete the user "{selectedUser?.name}"? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteUser}>
+              Delete User
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password Change Dialog */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change User Password</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="mb-4">
+              Enter a new password for {selectedUser?.name}
+            </p>
+            <div>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-moroccan-blue focus:border-moroccan-blue"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              className="bg-moroccan-blue hover:bg-moroccan-blue/90" 
+              onClick={confirmChangePassword}
+              disabled={!newPassword}
+            >
+              Change Password
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit or Add User Modal */}
+      {(isEditModalOpen || isAddModalOpen) && (
+        <UserEditModal
+          user={selectedUser}
+          isOpen={isEditModalOpen || isAddModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setIsAddModalOpen(false);
+          }}
+          onSave={handleSaveUser}
+        />
+      )}
     </AdminLayout>
   );
 };
