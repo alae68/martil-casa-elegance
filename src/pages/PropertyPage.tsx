@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { properties } from '@/data/properties';
+import { useProperties } from '@/contexts/PropertiesContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PropertyDetails from '@/components/PropertyDetails';
@@ -9,6 +9,7 @@ import PropertyCard from '@/components/PropertyCard';
 
 const PropertyPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { properties } = useProperties();
   const [property, setProperty] = useState(properties.find(p => p.id === id));
   const [similarProperties, setSimilarProperties] = useState([]);
 
@@ -29,7 +30,7 @@ const PropertyPage = () => {
       
       setSimilarProperties(similar);
     }
-  }, [id]);
+  }, [id, properties]);
 
   if (!property) {
     return (
