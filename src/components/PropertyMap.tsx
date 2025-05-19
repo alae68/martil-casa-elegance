@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { Property } from '@/data/properties';
@@ -209,17 +208,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     ]
   };
 
-  // Custom marker icon
-  const markerIcon = {
-    path: "M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.79 6.45 11.93 7.57 13.05a1.49 1.49 0 002.01.04C14.04 20.44 20.5 14.27 20.5 8.5 20.5 3.81 16.69 0 12 0zm0 11a2.5 2.5 0 110-5 2.5 2.5 0 010 5z",
-    fillColor: "#0D5C93",
-    fillOpacity: 1,
-    strokeColor: "#FFFFFF",
-    strokeWeight: 2,
-    scale: 1.2,
-    anchor: { x: 12, y: 24 }
-  };
-
   return (
     <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
       <GoogleMap
@@ -233,11 +221,17 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
             key={property.id}
             position={getPropertyCoordinates(property, index)}
             onClick={() => setSelectedProperty(property)}
-            icon={property.featured ? {
-              ...markerIcon,
-              fillColor: "#E9B44C"
-            } : markerIcon}
-            animation={2} // Drop animation, 2 corresponds to google.maps.Animation.DROP
+            icon={{
+              url: `data:image/svg+xml,${encodeURIComponent(
+                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
+                  <path d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.79 6.45 11.93 7.57 13.05a1.49 1.49 0 002.01.04C14.04 20.44 20.5 14.27 20.5 8.5 20.5 3.81 16.69 0 12 0zm0 11a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" 
+                  fill="${property.featured ? '#E9B44C' : '#0D5C93'}" stroke="#FFFFFF" stroke-width="2"/>
+                </svg>`
+              )}`,
+              scaledSize: new window.google.maps.Size(32, 48),
+              anchor: new window.google.maps.Point(16, 48),
+            }}
+            animation={window.google.maps.Animation.DROP}
           />
         ))}
 
