@@ -18,7 +18,7 @@ import * as z from "zod";
 
 // Define the schema for the login form
 const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  username: z.string().min(1, { message: "Username is required." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 });
 
@@ -32,7 +32,7 @@ const LoginPage = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -46,7 +46,7 @@ const LoginPage = () => {
       
       // Mock user authentication - For demo only
       // In real application, this would be handled through API and tokens
-      if (data.email === "admin@martil.com" && data.password === "password123") {
+      if (data.username === "admin" && data.password === "password123") {
         // Admin login
         localStorage.setItem("userRole", "admin");
         localStorage.setItem("isLoggedIn", "true");
@@ -55,7 +55,7 @@ const LoginPage = () => {
           description: "Welcome back, Admin!",
         });
         navigate("/admin");
-      } else if (data.email === "user@example.com" && data.password === "password123") {
+      } else if (data.username === "user" && data.password === "password123") {
         // Regular user login
         localStorage.setItem("userRole", "user");
         localStorage.setItem("isLoggedIn", "true");
@@ -68,7 +68,7 @@ const LoginPage = () => {
         // Invalid credentials
         toast({
           title: "Login failed",
-          description: "Invalid email or password. Please try again.",
+          description: "Invalid username or password. Please try again.",
           variant: "destructive",
         });
       }
@@ -96,12 +96,12 @@ const LoginPage = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="your.email@example.com" {...field} />
+                    <Input placeholder="Enter your username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -135,8 +135,8 @@ const LoginPage = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
             For demo purposes:<br />
-            Admin: admin@martil.com / password123<br />
-            User: user@example.com / password123
+            Admin: admin / password123<br />
+            User: user / password123
           </p>
         </div>
       </div>
