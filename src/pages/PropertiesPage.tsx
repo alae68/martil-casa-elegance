@@ -30,7 +30,7 @@ const PropertiesPage = () => {
     }
 
     if (guests) {
-      filtered = filtered.filter(property => property.maxGuests >= guests);
+      filtered = filtered.filter(property => property.capacity >= guests);
     }
 
     // Note: In a real application, you would filter by dates as well
