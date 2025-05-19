@@ -10,7 +10,14 @@ interface PropertiesContextType {
   loading: boolean;
 }
 
-const PropertiesContext = createContext<PropertiesContextType | undefined>(undefined);
+// Export the context so it can be imported directly
+export const PropertiesContext = createContext<PropertiesContextType>({
+  properties: [],
+  addProperty: () => {},
+  updateProperty: () => {},
+  deleteProperty: () => {},
+  loading: false
+});
 
 export const useProperties = () => {
   const context = useContext(PropertiesContext);

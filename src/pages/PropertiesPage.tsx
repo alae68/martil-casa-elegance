@@ -1,14 +1,14 @@
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { PropertiesContext } from '@/contexts/PropertiesContext';
+import { useProperties } from '@/contexts/PropertiesContext';
 import { Property } from '@/data/properties';
 import PropertyCard from '@/components/PropertyCard';
 
 const PropertiesPage = () => {
-  const { properties } = useContext(PropertiesContext);
+  const { properties } = useProperties();
   const [searchParams] = useSearchParams();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
 
