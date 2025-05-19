@@ -6,11 +6,15 @@ import Footer from '@/components/Footer';
 import { useProperties } from '@/contexts/PropertiesContext';
 import { Property } from '@/data/properties';
 import PropertyCard from '@/components/PropertyCard';
+import PropertyMap from '@/components/PropertyMap';
+import { MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const PropertiesPage = () => {
   const { properties } = useProperties();
   const [searchParams] = useSearchParams();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   // Get search params
   const location = searchParams.get('location');
@@ -55,23 +59,53 @@ const PropertiesPage = () => {
             </p>
           </div>
           
-          {/* Filter options - could be expanded in the future */}
+          {/* View toggle and filters */}
           <div className="bg-white p-4 rounded-md shadow-sm mb-6">
-            <h2 className="text-lg font-medium mb-2">Filters</h2>
-            <div className="flex flex-wrap gap-2">
-              <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Price</button>
-              <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Type</button>
-              <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Amenities</button>
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <div>
+                <h2 className="text-lg font-medium mb-2">Filters</h2>
+                <div className="flex flex-wrap gap-2">
+                  <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Price</button>
+                  <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Type</button>
+                  <button className="px-3 py-1 bg-gray-100 rounded-full text-sm">Amenities</button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  List View
+                </Button>
+                <Button
+                  variant={viewMode === 'map' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('map')}
+                >
+                  <MapPin className="mr-1 h-4 w-4" />
+                  Map View
+                </Button>
+              </div>
             </div>
           </div>
           
-          {/* Results */}
+          {/* Results - Toggle between list and map views */}
           {filteredProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map(property => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+            viewMode === 'list' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProperties.map(property => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white p-4 rounded-md shadow-sm">
+                <PropertyMap properties={filteredProperties} />
+                <p className="mt-4 text-sm text-gray-500 text-center">
+                  Note: For demo purposes, property locations are approximated. In a real application, exact GPS coordinates would be used.
+                </p>
+              </div>
+            )
           ) : (
             <div className="text-center py-12">
               <h2 className="text-2xl font-medium mb-2">No properties found</h2>
