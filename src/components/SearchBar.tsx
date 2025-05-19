@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { Search, MapPin, Calendar, Users } from 'lucide-react';
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -54,10 +55,13 @@ const SearchBar = () => {
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-1">
+    <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-elevated p-1.5">
       <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
+            <MapPin className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+            Location
+          </label>
           <input
             type="text"
             className="w-full text-gray-900 focus:outline-none"
@@ -67,7 +71,10 @@ const SearchBar = () => {
         </div>
         
         <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="block text-xs font-medium text-gray-500 mb-1">Check-in Date</label>
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
+            <Calendar className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+            Check-in Date
+          </label>
           <input
             type="date"
             className="w-full text-gray-900 focus:outline-none"
@@ -78,7 +85,10 @@ const SearchBar = () => {
         </div>
         
         <div className="p-3 border-b md:border-b-0 md:border-r border-gray-200">
-          <label className="block text-xs font-medium text-gray-500 mb-1">Check-out Date</label>
+          <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
+            <Calendar className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+            Check-out Date
+          </label>
           <input
             type="date"
             className="w-full text-gray-900 focus:outline-none"
@@ -88,9 +98,12 @@ const SearchBar = () => {
           />
         </div>
         
-        <div className="flex items-center space-x-2 p-2">
+        <div className="flex items-center space-x-3 p-3">
           <div className="flex-1">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Guests</label>
+            <label className="flex items-center text-xs font-medium text-gray-500 mb-1">
+              <Users className="w-3.5 h-3.5 mr-1 text-moroccan-blue" />
+              Guests
+            </label>
             <select
               className="w-full text-gray-900 focus:outline-none bg-white"
               value={guests}
@@ -106,11 +119,9 @@ const SearchBar = () => {
           
           <button
             type="submit"
-            className="btn-primary h-full flex items-center space-x-2"
+            className="h-full flex items-center space-x-2 bg-moroccan-blue hover:bg-moroccan-blue/90 text-white px-5 py-3 rounded-lg transition duration-300 shadow-button"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+            <Search className="w-4 h-4" />
             <span>Search</span>
           </button>
         </div>
