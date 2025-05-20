@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, LogIn, LogOut } from 'lucide-react';
+import { Menu, LogIn, LogOut, Anchor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -66,18 +65,22 @@ const Header = () => {
     >
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 z-20">
-            <div className={`bg-moroccan-blue text-white p-2 rounded-lg shadow-md ${
-              isScrolled ? '' : 'bg-opacity-90'
-            }`}>
-              <span className="font-serif text-lg">M</span>
+          {/* Enhanced Logo */}
+          <Link to="/" className="flex items-center space-x-3 z-20 group">
+            <div className={`relative overflow-hidden rounded-lg shadow-lg transition-all duration-300 ${
+              isScrolled ? 'bg-moroccan-blue' : 'bg-moroccan-blue/90'
+            } p-2.5 transform group-hover:scale-105`}>
+              <Anchor className="h-5 w-5 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-moroccan-gold/30 to-transparent opacity-50"></div>
             </div>
-            <div className={`font-serif text-xl ${
-              isScrolled ? 'text-moroccan-blue' : 'text-white'
-            }`}>
-              <span>Martil</span>
-              <span className="text-moroccan-gold">Haven</span>
+            <div className="font-serif">
+              <span className={`text-2xl font-medium transition-colors duration-300 ${
+                isScrolled ? 'text-moroccan-blue' : 'text-white'
+              }`}>Martil</span>
+              <span className="text-2xl font-medium text-moroccan-gold">Haven</span>
+              <div className={`h-0.5 w-0 group-hover:w-full transition-all duration-300 ${
+                isScrolled ? 'bg-moroccan-blue' : 'bg-white'
+              }`}></div>
             </div>
           </Link>
 
@@ -125,7 +128,7 @@ const Header = () => {
               <Button 
                 variant={isScrolled ? "outline" : "secondary"}
                 onClick={handleLogout}
-                className="flex items-center space-x-2 shadow-button"
+                className="flex items-center space-x-2 shadow-button transition-all duration-300 hover:scale-105"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
@@ -134,7 +137,7 @@ const Header = () => {
               <Button 
                 variant={isScrolled ? "outline" : "secondary"}
                 onClick={() => navigate('/login')}
-                className="flex items-center space-x-2 shadow-button"
+                className="flex items-center space-x-2 shadow-button transition-all duration-300 hover:scale-105"
               >
                 <LogIn className="h-4 w-4" />
                 <span>Login</span>
@@ -149,7 +152,7 @@ const Header = () => {
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
-              className={isScrolled ? 'text-gray-700' : 'text-white'}
+              className={`${isScrolled ? 'text-gray-700' : 'text-white'} hover:bg-white/10`}
             >
               <Menu className="h-6 w-6" />
             </Button>
