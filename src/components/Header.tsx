@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, LogIn, LogOut, Anchor } from 'lucide-react';
@@ -65,22 +66,29 @@ const Header = () => {
     >
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
-          {/* Enhanced Logo */}
+          {/* Redesigned Logo based on uploaded image */}
           <Link to="/" className="flex items-center space-x-3 z-20 group">
-            <div className={`relative overflow-hidden rounded-lg shadow-lg transition-all duration-300 ${
-              isScrolled ? 'bg-moroccan-blue' : 'bg-moroccan-blue/90'
-            } p-2.5 transform group-hover:scale-105`}>
-              <Anchor className="h-5 w-5 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-tr from-moroccan-gold/30 to-transparent opacity-50"></div>
-            </div>
-            <div className="font-serif">
-              <span className={`text-2xl font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-moroccan-blue' : 'text-white'
-              }`}>Martil</span>
-              <span className="text-2xl font-medium text-moroccan-gold">Haven</span>
-              <div className={`h-0.5 w-0 group-hover:w-full transition-all duration-300 ${
-                isScrolled ? 'bg-moroccan-blue' : 'bg-white'
-              }`}></div>
+            <div className="flex items-center">
+              <div className="flex">
+                {/* Gold circle */}
+                <div className="bg-moroccan-gold rounded-full w-12 h-12 flex items-center justify-center mr-[-8px] z-10 shadow-md transition-all duration-300 group-hover:shadow-lg">
+                  <span className="font-serif text-white text-lg font-bold">F</span>
+                </div>
+                {/* Blue square with anchor icon */}
+                <div className="bg-moroccan-blue rounded-md w-14 h-14 flex items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-lg">
+                  <Anchor className="h-7 w-7 text-white" />
+                </div>
+                {/* Gold circle */}
+                <div className="bg-moroccan-gold rounded-full w-12 h-12 flex items-center justify-center ml-[-8px] z-10 shadow-md transition-all duration-300 group-hover:shadow-lg">
+                  <span className="font-serif text-white text-lg font-bold">L</span>
+                </div>
+              </div>
+              <div className="font-serif ml-4">
+                <span className={`text-2xl font-medium transition-colors duration-300 ${
+                  isScrolled ? 'text-moroccan-blue' : 'text-white'
+                }`}>Martil</span>
+                <span className="text-2xl font-medium text-moroccan-gold ml-2">Haven</span>
+              </div>
             </div>
           </Link>
 
