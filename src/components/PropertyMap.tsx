@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { Property } from '@/data/properties';
 import { Link } from 'react-router-dom';
@@ -31,6 +31,8 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 }) => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [animatedMarkers, setAnimatedMarkers] = useState<string[]>([]);
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   // Mock coordinates for demo purposes as our data doesn't have real coords
   const getPropertyCoordinates = useCallback((property: Property, index: number) => {
@@ -49,18 +51,22 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   useEffect(() => {
     if (mapLoaded) {
       const timer = setTimeout(() => {
-        // Add animation classes to markers after map loads
-        const markers = document.querySelectorAll('.map-marker');
-        markers.forEach((marker, i) => {
+        // Add markers to the animated markers array one by one
+        properties.forEach((property, i) => {
           setTimeout(() => {
-            marker.classList.add('animate-bounce');
+            setAnimatedMarkers(prev => [...prev, property.id]);
           }, i * 100);
         });
       }, 500);
       
       return () => clearTimeout(timer);
     }
-  }, [mapLoaded]);
+  }, [mapLoaded, properties]);
+
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    setMapLoaded(true);
+  }, []);
 
   // Options for the map
   const mapOptions = {
@@ -169,8 +175,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   };
 
   return (
-    <div className="relative rounded-xl overflow-hidden">
-      <div className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm font-medium text-moroccan-blue animate-fade-in">
+    <div className="relative rounded-xl overflow-hidden map-container">
+      <div className="map-overlay"></div>
+      
+      <div className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm font-medium text-moroccan-blue animate-fade-in">
         {properties.length} Properties Found in Martil
       </div>
       
@@ -183,6 +191,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
           center={center}
           zoom={zoom}
           options={mapOptions}
+          onLoad={handleMapLoad}
         >
           {properties.map((property, index) => (
             <Marker
@@ -193,14 +202,17 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                 url: `data:image/svg+xml,${encodeURIComponent(
                   `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
                     <path d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.79 6.45 11.93 7.57 13.05a1.49 1.49 0 002.01.04C14.04 20.44 20.5 14.27 20.5 8.5 20.5 3.81 16.69 0 12 0zm0 11a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" 
-                    fill="${property.featured ? '#E9B44C' : '#0D5C93'}" stroke="#FFFFFF" stroke-width="2"/>
+                    fill="${property.featured ? '#DAA520' : '#1A5D91'}" stroke="#FFFFFF" stroke-width="2"/>
                   </svg>`
                 )}`,
                 scaledSize: new window.google.maps.Size(32, 48),
                 anchor: new window.google.maps.Point(16, 48),
               }}
-              animation={window.google.maps.Animation.DROP}
-              className="map-marker"
+              animation={
+                animatedMarkers.includes(property.id) 
+                  ? window.google.maps.Animation.DROP 
+                  : undefined
+              }
             />
           ))}
 
@@ -268,7 +280,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
         </GoogleMap>
       </LoadScript>
       
-      <div className="absolute bottom-4 left-4 z-10 bg-white/80 backdrop-blur-sm flex items-center gap-3 px-3 py-2 rounded-lg shadow-lg text-xs font-medium">
+      <div className="map-legend">
         <div className="flex items-center">
           <span className="inline-block w-3 h-3 bg-moroccan-blue rounded-full mr-1.5"></span>
           Standard
