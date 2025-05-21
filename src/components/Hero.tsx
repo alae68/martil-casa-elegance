@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
       <div className="container-custom relative z-10 text-white">
         <div className="max-w-2xl">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium mb-6 leading-tight animate-fade-up">
-            Experience <span className="text-moroccan-gold">Beautiful Morocco</span> on the Mediterranean Coast
+            Experience <span className="text-moroccan-gold">Authentic Morocco</span> on the Mediterranean Coast
           </h1>
           <p className="text-lg md:text-xl opacity-90 mb-10 animate-fade-up animate-delay-100">
             Discover handpicked luxury properties in Martil with breathtaking sea views and world-class amenities
