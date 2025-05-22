@@ -1,3 +1,4 @@
+
 export interface Property {
   id: string;
   title: string;
@@ -11,6 +12,8 @@ export interface Property {
   capacity: number;
   amenities: string[];
   featured: boolean;
+  rating: number; // Add the missing rating property
+  reviews: number; // Add the missing reviews property
   ownerId?: string; // ID of the property owner
   status?: 'pending' | 'approved' | 'rejected'; // Moderation status
   createdAt?: string; // When the property was first listed

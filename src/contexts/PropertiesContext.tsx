@@ -42,9 +42,9 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         // Add status field to existing properties if not present
         const updatedProperties = module.properties.map(property => ({
           ...property,
-          status: 'approved',
-          ownerId: 'admin', // Default owner for existing properties
-          createdAt: new Date().toISOString(),
+          status: property.status || 'approved' as 'approved',
+          ownerId: property.ownerId || 'admin', // Default owner for existing properties
+          createdAt: property.createdAt || new Date().toISOString(),
         }));
         setProperties(updatedProperties);
         localStorage.setItem('martilhaven_properties', JSON.stringify(updatedProperties));
@@ -64,7 +64,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const property: Property = {
       ...newProperty,
       id: `PROP${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-      status: newProperty.status || 'pending', // Default status for new properties
+      status: newProperty.status || 'pending' as 'pending', // Default status for new properties
     };
     
     setProperties(prevProperties => [...prevProperties, property]);
