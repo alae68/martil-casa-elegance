@@ -1,19 +1,20 @@
-
 export interface Property {
   id: string;
   title: string;
   description: string;
   price: number;
-  priceUnit: string;
+  priceUnit: 'night' | 'week' | 'month';
+  images: string[];
   location: string;
   bedrooms: number;
   bathrooms: number;
   capacity: number;
   amenities: string[];
-  images: string[];
   featured: boolean;
-  rating: number;
-  reviews: number;
+  ownerId?: string; // ID of the property owner
+  status?: 'pending' | 'approved' | 'rejected'; // Moderation status
+  createdAt?: string; // When the property was first listed
+  updatedAt?: string; // When the property was last updated
 }
 
 export const properties: Property[] = [

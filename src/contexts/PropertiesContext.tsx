@@ -39,8 +39,15 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } else {
       // Import default properties if none exist
       import('@/data/properties').then((module) => {
-        setProperties(module.properties);
-        localStorage.setItem('martilhaven_properties', JSON.stringify(module.properties));
+        // Add status field to existing properties if not present
+        const updatedProperties = module.properties.map(property => ({
+          ...property,
+          status: 'approved',
+          ownerId: 'admin', // Default owner for existing properties
+          createdAt: new Date().toISOString(),
+        }));
+        setProperties(updatedProperties);
+        localStorage.setItem('martilhaven_properties', JSON.stringify(updatedProperties));
       });
     }
     setLoading(false);
@@ -57,7 +64,7 @@ export const PropertiesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const property: Property = {
       ...newProperty,
       id: `PROP${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-      featured: true, // Automatically set featured to true for new properties
+      status: newProperty.status || 'pending', // Default status for new properties
     };
     
     setProperties(prevProperties => [...prevProperties, property]);

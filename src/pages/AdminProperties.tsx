@@ -1,224 +1,418 @@
 
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Search, Building } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { useProperties } from '@/contexts/PropertiesContext';
 import AdminLayout from '@/components/AdminLayout';
-import PropertyForm from '@/components/PropertyForm';
+import { useProperties } from '@/contexts/PropertiesContext';
 import { Button } from '@/components/ui/button';
-import { Property } from '@/data/properties';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Check, X, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AdminProperties = () => {
+  const { properties, updateProperty } = useProperties();
   const { toast } = useToast();
-  const { properties, addProperty, updateProperty, deleteProperty, loading } = useProperties();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showPropertyModal, setShowPropertyModal] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   
   // Filter properties based on search term
   const filteredProperties = properties.filter(property => 
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.location.toLowerCase().includes(searchTerm.toLowerCase())
+    property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleAddProperty = () => {
-    setEditingProperty(null);
-    setShowPropertyModal(true);
-  };
-
-  const handleEditProperty = (property: Property) => {
-    setEditingProperty(property);
-    setShowPropertyModal(true);
-  };
-
-  const handleDeleteProperty = (id: string) => {
-    deleteProperty(id);
-    
+  
+  // Group properties by status
+  const pendingProperties = filteredProperties.filter(p => p.status === 'pending');
+  const approvedProperties = filteredProperties.filter(p => p.status === 'approved');
+  const rejectedProperties = filteredProperties.filter(p => p.status === 'rejected');
+  
+  const handleApproveProperty = (id: string) => {
+    updateProperty(id, { status: 'approved' });
     toast({
-      title: "Property Deleted",
-      description: "The property has been successfully deleted.",
+      title: "Property approved",
+      description: "The property listing has been published.",
+    });
+  };
+  
+  const handleRejectProperty = (id: string) => {
+    updateProperty(id, { status: 'rejected' });
+    toast({
+      title: "Property rejected",
+      description: "The property listing has been rejected.",
     });
   };
 
-  const handleSaveProperty = (formData: any) => {
-    if (editingProperty) {
-      updateProperty(editingProperty.id, {
-        ...formData,
-        rating: editingProperty.rating || 0,
-        reviews: editingProperty.reviews || 0,
-      });
-      
-      toast({
-        title: "Property Updated",
-        description: "The property has been successfully updated.",
-      });
-    } else {
-      addProperty({
-        ...formData,
-        rating: 0,
-        reviews: 0,
-      });
-      
-      toast({
-        title: "Property Added",
-        description: "The new property has been successfully added.",
-      });
-    }
-    
-    setShowPropertyModal(false);
-  };
-
-  if (loading) {
-    return (
-      <AdminLayout title="Properties" currentPath="/admin/properties">
-        <div className="flex justify-center items-center h-64">
-          <p>Loading properties...</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
-    <AdminLayout title="Properties" currentPath="/admin/properties">
-      {/* Header with actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+    <AdminLayout title="Property Management">
+      <div className="space-y-6">
+        {/* Search and filter controls */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="w-full sm:max-w-sm">
+            <Input
+              placeholder="Search properties..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full"
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Search properties..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-moroccan-blue focus:border-moroccan-blue w-full md:w-80"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="flex items-center gap-2">
+            <Checkbox id="featured" />
+            <label htmlFor="featured" className="text-sm font-medium">
+              Featured only
+            </label>
+          </div>
         </div>
         
-        <Button 
-          onClick={handleAddProperty}
-          className="bg-moroccan-blue text-white hover:bg-moroccan-blue/90 transition"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          <span>Add New Property</span>
-        </Button>
-      </div>
-      
-      {/* Properties Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Property</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProperties.map((property) => (
-                <TableRow key={property.id}>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-md overflow-hidden bg-gray-100">
-                        <img 
-                          src={property.images[0]} 
-                          alt={property.title} 
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {property.title}
+        {/* Properties organized by tabs */}
+        <Tabs defaultValue="pending">
+          <TabsList className="mb-6">
+            <TabsTrigger value="pending">
+              Pending Review
+              {pendingProperties.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full">
+                  {pendingProperties.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="approved">Approved</TabsTrigger>
+            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            <TabsTrigger value="all">All Properties</TabsTrigger>
+          </TabsList>
+          
+          {/* Pending properties tab */}
+          <TabsContent value="pending">
+            <h2 className="text-lg font-medium mb-4">Properties Pending Review</h2>
+            {pendingProperties.length > 0 ? (
+              <div className="space-y-4">
+                {pendingProperties.map(property => (
+                  <Card key={property.id} className="overflow-hidden">
+                    <div className="flex flex-col md:flex-row">
+                      {property.images && property.images.length > 0 && (
+                        <div className="w-full md:w-48 h-40">
+                          <img 
+                            src={property.images[0]} 
+                            alt={property.title} 
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <div className="text-xs text-gray-500 max-w-[200px] truncate">
-                          {property.description.substring(0, 60)}...
+                      )}
+                      <CardContent className="flex-1 p-5">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-lg">{property.title}</h3>
+                            <p className="text-gray-500 text-sm">{property.location}</p>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2 md:mt-0">
+                            ID: {property.id}
+                          </div>
                         </div>
-                      </div>
+                        
+                        <div className="mb-3">
+                          <p className="text-sm line-clamp-2">{property.description}</p>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bedrooms} bedrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bathrooms} bathrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">${property.price}/{property.priceUnit}</span>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="text-xs text-gray-500">
+                            Submitted: {property.createdAt ? new Date(property.createdAt).toLocaleDateString() : 'Unknown'}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link to={`/property/${property.id}`}>
+                                <Eye className="mr-1 h-4 w-4" />
+                                View
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => handleApproveProperty(property.id)}
+                            >
+                              <Check className="mr-1 h-4 w-4" />
+                              Approve
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => handleRejectProperty(property.id)}
+                            >
+                              <X className="mr-1 h-4 w-4" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    {property.location}
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm font-medium text-gray-900">${property.price}</div>
-                    <div className="text-xs text-gray-500">per {property.priceUnit}</div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    <div>{property.bedrooms} BR • {property.bathrooms} BA</div>
-                    <div className="text-xs text-gray-400">Up to {property.capacity} guests</div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${property.featured ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {property.featured ? 'Featured' : 'Standard'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right text-sm font-medium">
-                    <div className="flex justify-end space-x-2">
-                      <button 
-                        onClick={() => handleEditProperty(property)}
-                        className="text-moroccan-blue hover:text-moroccan-blue/70 transition"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteProperty(property.id)}
-                        className="text-red-500 hover:text-red-700 transition"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        
-        {/* Empty state */}
-        {filteredProperties.length === 0 && (
-          <div className="py-12 text-center">
-            <Building className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm ? `No properties match "${searchTerm}"` : 'No properties have been added yet.'}
-            </p>
-            {!searchTerm && (
-              <div className="mt-6">
-                <Button 
-                  onClick={handleAddProperty}
-                  className="bg-moroccan-blue hover:bg-moroccan-blue/90"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add new property
-                </Button>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-white rounded-lg border">
+                <p className="text-gray-500">No pending properties to review</p>
               </div>
             )}
-          </div>
-        )}
+          </TabsContent>
+          
+          {/* Approved properties tab */}
+          <TabsContent value="approved">
+            <h2 className="text-lg font-medium mb-4">Approved Properties</h2>
+            {approvedProperties.length > 0 ? (
+              <div className="space-y-4">
+                {approvedProperties.map(property => (
+                  <Card key={property.id} className="overflow-hidden">
+                    <div className="flex flex-col md:flex-row">
+                      {property.images && property.images.length > 0 && (
+                        <div className="w-full md:w-48 h-40">
+                          <img 
+                            src={property.images[0]} 
+                            alt={property.title} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="flex-1 p-5">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-lg">{property.title}</h3>
+                            <p className="text-gray-500 text-sm">{property.location}</p>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2 md:mt-0">
+                            ID: {property.id}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bedrooms} bedrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bathrooms} bathrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">${property.price}/{property.priceUnit}</span>
+                          {property.featured && (
+                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Featured</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="text-xs text-gray-500">
+                            Approved: {property.updatedAt ? new Date(property.updatedAt).toLocaleDateString() : 'Unknown'}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link to={`/property/${property.id}`}>
+                                <Eye className="mr-1 h-4 w-4" />
+                                View
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => handleRejectProperty(property.id)}
+                            >
+                              <X className="mr-1 h-4 w-4" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-white rounded-lg border">
+                <p className="text-gray-500">No approved properties</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Rejected properties tab */}
+          <TabsContent value="rejected">
+            <h2 className="text-lg font-medium mb-4">Rejected Properties</h2>
+            {rejectedProperties.length > 0 ? (
+              <div className="space-y-4">
+                {rejectedProperties.map(property => (
+                  <Card key={property.id} className="overflow-hidden">
+                    <div className="flex flex-col md:flex-row">
+                      {property.images && property.images.length > 0 && (
+                        <div className="w-full md:w-48 h-40">
+                          <img 
+                            src={property.images[0]} 
+                            alt={property.title} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="flex-1 p-5">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-lg">{property.title}</h3>
+                            <p className="text-gray-500 text-sm">{property.location}</p>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2 md:mt-0">
+                            ID: {property.id}
+                          </div>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <p className="text-sm line-clamp-2">{property.description}</p>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bedrooms} bedrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bathrooms} bathrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">${property.price}/{property.priceUnit}</span>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="text-xs text-gray-500">
+                            Rejected: {property.updatedAt ? new Date(property.updatedAt).toLocaleDateString() : 'Unknown'}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link to={`/property/${property.id}`}>
+                                <Eye className="mr-1 h-4 w-4" />
+                                View
+                              </Link>
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => handleApproveProperty(property.id)}
+                            >
+                              <Check className="mr-1 h-4 w-4" />
+                              Approve
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-white rounded-lg border">
+                <p className="text-gray-500">No rejected properties</p>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* All properties tab */}
+          <TabsContent value="all">
+            <h2 className="text-lg font-medium mb-4">All Properties ({filteredProperties.length})</h2>
+            {filteredProperties.length > 0 ? (
+              <div className="space-y-4">
+                {filteredProperties.map(property => (
+                  <Card key={property.id} className="overflow-hidden">
+                    <div className="flex flex-col md:flex-row">
+                      {property.images && property.images.length > 0 && (
+                        <div className="w-full md:w-48 h-40">
+                          <img 
+                            src={property.images[0]} 
+                            alt={property.title} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="flex-1 p-5">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
+                          <div>
+                            <h3 className="font-medium text-lg">{property.title}</h3>
+                            <p className="text-gray-500 text-sm">{property.location}</p>
+                            <div className={`mt-1 inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                              property.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                              property.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {property.status}
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-500 mt-2 md:mt-0">
+                            ID: {property.id}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-4 text-xs">
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bedrooms} bedrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">{property.bathrooms} bathrooms</span>
+                          <span className="px-2 py-1 bg-gray-100 rounded-full">${property.price}/{property.priceUnit}</span>
+                          {property.featured && (
+                            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Featured</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="text-xs text-gray-500">
+                            {property.createdAt ? new Date(property.createdAt).toLocaleDateString() : 'Unknown'}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              asChild
+                            >
+                              <Link to={`/property/${property.id}`}>
+                                <Eye className="mr-1 h-4 w-4" />
+                                View
+                              </Link>
+                            </Button>
+                            {property.status !== 'approved' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-green-600 border-green-600 hover:bg-green-50"
+                                onClick={() => handleApproveProperty(property.id)}
+                              >
+                                <Check className="mr-1 h-4 w-4" />
+                                Approve
+                              </Button>
+                            )}
+                            {property.status !== 'rejected' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-red-600 border-red-600 hover:bg-red-50"
+                                onClick={() => handleRejectProperty(property.id)}
+                              >
+                                <X className="mr-1 h-4 w-4" />
+                                Reject
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-white rounded-lg border">
+                <p className="text-gray-500">No properties found</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Property Form Modal */}
-      {showPropertyModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <PropertyForm
-            property={editingProperty || undefined}
-            onSubmit={handleSaveProperty}
-            onCancel={() => setShowPropertyModal(false)}
-          />
-        </div>
-      )}
     </AdminLayout>
   );
 };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
@@ -17,7 +18,7 @@ const Footer = () => {
                 <span className="text-moroccan-gold">Haven</span>
               </div>
             </Link>
-            <p className="text-sm mb-6 leading-relaxed text-gray-950">
+            <p className="text-sm mb-6 leading-relaxed text-gray-300">
               Discover beautiful vacation properties in Martil, Morocco. Experience the perfect blend of Moroccan hospitality and modern luxury on the Mediterranean coast.
             </p>
             <div className="flex space-x-5">
@@ -62,6 +63,12 @@ const Footer = () => {
                 <Link to="/contact" className="text-gray-300 hover:text-moroccan-gold transition duration-200 flex items-center">
                   <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/owner-dashboard" className="text-gray-300 hover:text-moroccan-gold transition duration-200 flex items-center">
+                  <span className="w-1.5 h-1.5 bg-moroccan-gold rounded-full mr-2"></span>
+                  List Your Property
                 </Link>
               </li>
             </ul>
