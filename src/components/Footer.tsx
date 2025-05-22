@@ -1,13 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Facebook, Instagram, Twitter } from 'lucide-react';
-
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  return (
-    <footer className="bg-moroccan-dark text-white pt-16 pb-8">
+  return <footer className="bg-moroccan-dark text-white pt-16 pb-8">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand Information */}
@@ -17,11 +13,11 @@ const Footer = () => {
                 <span className="font-serif text-lg">M</span>
               </div>
               <div className="font-serif text-xl text-white">
-                <span>Martil</span>
+                <span className="text-sky-900">Martil</span>
                 <span className="text-moroccan-gold">Haven</span>
               </div>
             </Link>
-            <p className="text-gray-300 text-sm mb-6 leading-relaxed">
+            <p className="text-sm mb-6 leading-relaxed text-gray-950">
               Discover beautiful vacation properties in Martil, Morocco. Experience the perfect blend of Moroccan hospitality and modern luxury on the Mediterranean coast.
             </p>
             <div className="flex space-x-5">
@@ -108,7 +104,7 @@ const Footer = () => {
             <address className="not-italic text-gray-300 space-y-4">
               <p className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 text-moroccan-gold mt-0.5" />
-                <span>Boulevard Mohammed V<br/>Martil, Morocco</span>
+                <span>Boulevard Mohammed V<br />Martil, Morocco</span>
               </p>
               <p className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-moroccan-gold" />
@@ -137,8 +133,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
