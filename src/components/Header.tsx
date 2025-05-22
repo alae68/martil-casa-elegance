@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, LogIn, LogOut, Anchor, Sun, Waves, Umbrella } from 'lucide-react';
+import { Menu, LogIn, LogOut, Sun, Waves, Umbrella } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -66,33 +66,33 @@ const Header = () => {
     >
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
-          {/* New Beach-themed Logo */}
+          {/* Improved Beach-themed Logo */}
           <Link to="/" className="flex items-center space-x-2 z-20 group">
             <div className="flex items-center">
               <div className="relative">
                 {/* Main circle with beach-themed gradient */}
-                <div className="bg-gradient-to-tr from-moroccan-blue to-sky-400 rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:shadow-xl">
-                  <Umbrella className="h-7 w-7 text-white" />
+                <div className="bg-gradient-to-br from-sky-500 to-moroccan-blue rounded-full w-16 h-16 flex items-center justify-center shadow-xl ring-4 ring-white/30 transition-all duration-300 group-hover:shadow-2xl">
+                  <Umbrella className="h-8 w-8 text-white" strokeWidth={1.5} />
                 </div>
                 {/* Sun icon overlay */}
-                <div className="absolute -top-2 -right-2 bg-moroccan-gold rounded-full w-8 h-8 flex items-center justify-center shadow-md border-2 border-white">
-                  <Sun className="h-5 w-5 text-white" />
+                <div className="absolute -top-2 -right-2 bg-moroccan-gold rounded-full w-10 h-10 flex items-center justify-center shadow-md border-2 border-white animate-pulse">
+                  <Sun className="h-6 w-6 text-white" strokeWidth={1.5} />
                 </div>
                 {/* Waves icon overlay */}
-                <div className="absolute -bottom-1 -left-1 bg-moroccan-blue rounded-full w-7 h-7 flex items-center justify-center shadow-md border-2 border-white">
-                  <Waves className="h-4 w-4 text-white" />
+                <div className="absolute -bottom-1 -left-1 bg-moroccan-blue rounded-full w-9 h-9 flex items-center justify-center shadow-md border-2 border-white">
+                  <Waves className="h-5 w-5 text-white" strokeWidth={1.5} />
                 </div>
               </div>
               <div className="font-serif ml-3">
                 <h1 className="flex items-baseline">
-                  <span className={`text-2xl font-medium transition-colors duration-300 ${
+                  <span className={`text-3xl font-medium transition-colors duration-300 ${
                     isScrolled ? 'text-moroccan-blue' : 'text-white'
                   }`}>Martil</span>
-                  <span className="text-2xl font-medium text-moroccan-gold ml-1.5">Beach</span>
-                  <span className="text-xs ml-1.5 opacity-70 uppercase tracking-wider text-moroccan-terracotta">Haven</span>
+                  <span className="text-3xl font-medium text-moroccan-gold ml-1.5">Beach</span>
+                  <span className="text-sm ml-1.5 font-semibold uppercase tracking-wider text-moroccan-terracotta">Haven</span>
                 </h1>
-                <p className={`text-xs tracking-wider ${
-                  isScrolled ? 'text-gray-600' : 'text-white/80'
+                <p className={`text-xs tracking-wider font-light ${
+                  isScrolled ? 'text-gray-600' : 'text-white/90'
                 }`}>MEDITERRANEAN PARADISE</p>
               </div>
             </div>
