@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, LogIn, LogOut, Anchor } from 'lucide-react';
+import { Menu, LogIn, LogOut, Anchor, Sun, Waves } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -66,28 +65,28 @@ const Header = () => {
     >
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
-          {/* Redesigned Logo based on uploaded image */}
+          {/* Redesigned Beach-themed Logo */}
           <Link to="/" className="flex items-center space-x-3 z-20 group">
             <div className="flex items-center">
               <div className="flex">
-                {/* Gold circle */}
+                {/* Gold circle with wave icon */}
                 <div className="bg-moroccan-gold rounded-full w-12 h-12 flex items-center justify-center mr-[-8px] z-10 shadow-md transition-all duration-300 group-hover:shadow-lg">
-                  <span className="font-serif text-white text-lg font-bold">F</span>
+                  <Waves className="h-5 w-5 text-white" />
                 </div>
                 {/* Blue square with anchor icon */}
                 <div className="bg-moroccan-blue rounded-md w-14 h-14 flex items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-lg">
                   <Anchor className="h-7 w-7 text-white" />
                 </div>
-                {/* Gold circle */}
+                {/* Gold circle with sun icon */}
                 <div className="bg-moroccan-gold rounded-full w-12 h-12 flex items-center justify-center ml-[-8px] z-10 shadow-md transition-all duration-300 group-hover:shadow-lg">
-                  <span className="font-serif text-white text-lg font-bold">L</span>
+                  <Sun className="h-5 w-5 text-white" />
                 </div>
               </div>
               <div className="font-serif ml-4">
                 <span className={`text-2xl font-medium transition-colors duration-300 ${
                   isScrolled ? 'text-moroccan-blue' : 'text-white'
                 }`}>Martil</span>
-                <span className="text-2xl font-medium text-moroccan-gold ml-2">Haven</span>
+                <span className="text-2xl font-medium text-moroccan-gold ml-2">Beach</span>
               </div>
             </div>
           </Link>
