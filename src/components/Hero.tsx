@@ -28,12 +28,12 @@ const Hero: React.FC = () => {
             Discover handpicked luxury properties in Martil with breathtaking sea views and world-class amenities
           </p>
           
-          {/* Enhanced Search Bar Container */}
-          <div className="bg-white/10 backdrop-blur-md p-5 rounded-xl border border-white/20 shadow-lg animate-fade-up animate-delay-200">
+          {/* Enhanced Search Bar Container with updated styling */}
+          <div className="bg-white/10 backdrop-blur-md p-5 rounded-xl border border-white/20 shadow-xl animate-fade-up animate-delay-200">
             <SearchBar />
           </div>
           
-          {/* Enhanced Quick Stats */}
+          {/* Enhanced Quick Stats with updated styling */}
           <div className="mt-16 grid grid-cols-3 gap-8 text-center animate-fade-up animate-delay-300">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg py-5 px-3 border border-white/10 shadow-lg transform transition-all duration-300 hover:scale-105 hover:bg-white/15">
               <div className="text-3xl font-serif font-medium text-moroccan-gold mb-1">25+</div>
